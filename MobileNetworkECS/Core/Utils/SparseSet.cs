@@ -75,4 +75,10 @@ public class SparseSet
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int Count() => _numberOfElements;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Full() => _numberOfElements == _capacity;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetByIndex(int index) => _dense[index];
 }

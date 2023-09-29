@@ -1,4 +1,5 @@
 using System.Collections;
+using MobileNetworkECS.Core.Utils;
 using MobileNetworkECS.Core.Worlds;
 
 namespace MobileNetworkECS.Core.Filters;
@@ -10,10 +11,10 @@ public class EcsRegisteredFilter : IEcsRegisteredFilter
     private readonly Type[] _incTypes, _excTypes;
     private uint[]? _incMask;
     private uint[]? _excMask;
-    private readonly List<int> _entities = new();
+    private readonly SparseSet _entitiesSet = new(1024, 1024);
     private int _currentIndex;
     private bool _lock;
-    private int Count => _entities.Count;
+    private int Count => _entitiesSet.Count();
     private readonly List<DelayedOperation> _delayedOperations = new();
 
     internal EcsRegisteredFilter(IEcsFilter filter, Type[] incTypes, Type[] excTypes)
@@ -40,7 +41,8 @@ public class EcsRegisteredFilter : IEcsRegisteredFilter
         if (_incMask.Length != poolsAttachment.Length || _excMask.Length != poolsAttachment.Length)
             throw new Exception("Incorrect size for masks or pool attachment");
 #endif
-        var contains = _entities.Contains(entity);
+
+        var contains = _entitiesSet.Find(entity) != -1;
 
         for (var i = 0; i < poolsAttachment.Length; i++)
         {
@@ -79,7 +81,8 @@ public class EcsRegisteredFilter : IEcsRegisteredFilter
                 _delayedOperations.Add(new DelayedOperation { Entity = entity, Add = true });
                 break;
             case false:
-                _entities.Add(entity);
+                if (_entitiesSet.Full()) _entitiesSet.AllocateDense(_entitiesSet.Count() * 2);
+                _entitiesSet.Insert(entity);
                 Filter.FilterWasUpdated?.Invoke();
                 break;
         }
@@ -93,16 +96,13 @@ public class EcsRegisteredFilter : IEcsRegisteredFilter
                 _delayedOperations.Add(new DelayedOperation { Entity = entity, Add = false });
                 break;
             case false:
-                _entities.Remove(entity);
+                _entitiesSet.Delete(entity);
                 Filter.FilterWasUpdated?.Invoke();
                 break;
         }
     }
-    
-    public void UpdateMaxEntityIndex(int amount)
-    {
-        throw new NotImplementedException();
-    }
+
+    public void UpdateMaxEntityIndex(int amount) => _entitiesSet.AllocateSparse(amount);
 
     public void UpdatePoolsAmount(int poolsAmount)
     {
@@ -153,7 +153,7 @@ public class EcsRegisteredFilter : IEcsRegisteredFilter
         _delayedOperations.Clear();
     }
 
-    public object Current => _entities[_currentIndex];
+    public object Current => _entitiesSet.GetByIndex(_currentIndex);
 
     #endregion
     

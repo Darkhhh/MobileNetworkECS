@@ -21,6 +21,7 @@ public class SparseSetTest
         Assert.AreEqual(1, set.Count());
         Assert.AreEqual(false, set.Insert(1520));
         Assert.AreEqual(true, set.Insert(400));
+        Assert.IsTrue(set.Full());
         Assert.AreEqual(false, set.Insert(321));
         Assert.AreEqual(2, set.Count());
     }
