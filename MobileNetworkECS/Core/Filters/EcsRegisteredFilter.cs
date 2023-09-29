@@ -1,4 +1,5 @@
 using System.Collections;
+using MobileNetworkECS.Core.Worlds;
 
 namespace MobileNetworkECS.Core.Filters;
 
@@ -97,6 +98,11 @@ public class EcsRegisteredFilter : IEcsRegisteredFilter
                 break;
         }
     }
+    
+    public void UpdateMaxEntityIndex(int amount)
+    {
+        throw new NotImplementedException();
+    }
 
     public void UpdatePoolsAmount(int poolsAmount)
     {
@@ -110,6 +116,10 @@ public class EcsRegisteredFilter : IEcsRegisteredFilter
         Array.Resize(ref _excMask, _incMask.Length + 1);
         _excMask[^1] = 0;
     }
+
+
+    #region IEnumerator & IEnumerable Implementation
+
     public IEnumerator GetEnumerator() => this;
 
     public bool MoveNext()
@@ -121,8 +131,12 @@ public class EcsRegisteredFilter : IEcsRegisteredFilter
     public void Reset()
     {
         _currentIndex = -1;
+        Unlock();
+    }
+
+    private void Unlock()
+    {
         _lock = false;
-        // Execute all delayed operations
         foreach (var operation in _delayedOperations)
         {
             switch (operation.Add)
@@ -135,12 +149,14 @@ public class EcsRegisteredFilter : IEcsRegisteredFilter
                     break;
             }
         }
+        if (_delayedOperations.Count > 0) Filter.FilterWasUpdated?.Invoke();
         _delayedOperations.Clear();
-        Filter.FilterWasUpdated?.Invoke();
     }
 
     public object Current => _entities[_currentIndex];
 
+    #endregion
+    
     private struct DelayedOperation
     {
         public int Entity;

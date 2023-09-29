@@ -13,6 +13,8 @@ public interface IEcsRegisteredFilter : IEnumerable, IEnumerator
     internal void CheckEntity(IRawEntity rawEntity, out bool added, out bool removed);
     
     internal void UpdatePoolsAmount(int poolsAmount);
+
+    internal void UpdateMaxEntityIndex(int amount);
     
     public IEcsFilter Filter { get; init; }
 }

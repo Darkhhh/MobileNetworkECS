@@ -6,9 +6,9 @@ public class SparseSet
 {
     private int[] _sparse; // Uses actual elements as index and stores indexes of dense[]
     private int[] _dense; // Stores actual elements
-    private int _n; // Current number of elements in set
+    private int _numberOfElements; // Current number of elements in set
     private int _capacity; // Initial capacity, size of dense
-    private int _maxValue; // Size of sparse
+    private int _maxValue; // Size of sparse, max value writable to dense
  
     public SparseSet(int maxValue, int capacity)
     {
@@ -16,45 +16,43 @@ public class SparseSet
         _dense = new int[capacity];
         _capacity = capacity;
         _maxValue = maxValue;
-        _n = 0;
+        _numberOfElements = 0;
     }
  
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int Find(int x)
+    public int Find(int item)
     {
-        if (x > _maxValue) return -1;
-        if (_sparse[x] < _n && _dense[_sparse[x]] == x) return _sparse[x];
+        if (item > _maxValue) return -1;
+        if (_sparse[item] < _numberOfElements && _dense[_sparse[item]] == item) return _sparse[item];
  
         return -1;
     }
  
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Insert(int x)
+    public bool Insert(int item)
     {
-        if (_n == _capacity) return;
-        if (x > _maxValue) return;
+        if (_numberOfElements == _capacity || item > _maxValue) return false;
  
-        var i = _sparse[x];
-        if (i >= _n || _dense[i] != x)
-        {
-            _dense[_n] = x;
-            _sparse[x] = _n;
-            _n++;
-        }
+        var indexOfDenseItem = _sparse[item];
+        if (indexOfDenseItem < _numberOfElements && _dense[indexOfDenseItem] == item) return false;
+        
+        _dense[_numberOfElements] = item;
+        _sparse[item] = _numberOfElements;
+        _numberOfElements++;
+        return true;
     }
  
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Delete(int x)
+    public void Delete(int item)
     {
-        if (x > _maxValue) return;
+        if (item > _maxValue) return;
  
-        var i = _sparse[x];
-        if (i < _n && _dense[i] == x)
-        {
-            _n--;
-            _dense[i] = _dense[_n];
-            _sparse[_dense[_n]] = i;
-        }
+        var indexOfDenseItem = _sparse[item];
+        if (indexOfDenseItem >= _numberOfElements || _dense[indexOfDenseItem] != item) return;
+        
+        _numberOfElements--;
+        _dense[indexOfDenseItem] = _dense[_numberOfElements];
+        _sparse[_dense[_numberOfElements]] = indexOfDenseItem;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -76,5 +74,5 @@ public class SparseSet
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int Count() => _n;
+    public int Count() => _numberOfElements;
 }

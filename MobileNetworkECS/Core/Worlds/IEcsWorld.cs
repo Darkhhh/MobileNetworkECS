@@ -1,6 +1,6 @@
 using MobileNetworkECS.Core.Filters;
 
-namespace MobileNetworkECS.Core;
+namespace MobileNetworkECS.Core.Worlds;
 
 public interface IEcsWorld
 {

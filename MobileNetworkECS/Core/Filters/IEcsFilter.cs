@@ -1,3 +1,5 @@
+using MobileNetworkECS.Core.Worlds;
+
 namespace MobileNetworkECS.Core.Filters;
 
 public interface IEcsFilter
