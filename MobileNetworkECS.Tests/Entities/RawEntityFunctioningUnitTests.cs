@@ -47,7 +47,8 @@ public class RawEntityFunctioningUnitTests
         Assert.AreEqual(1u, entity.GetPoolsAttachment()[1]);
         Assert.AreEqual(0u, entity.GetPoolsAttachment()[0]);
         
-        entity.UpdatePoolsAmount(129);
+        entity.IncreasePoolsAmount();
+        entity.IncreasePoolsAmount();
         entity.SetPool(129, true);
         Assert.AreEqual(2u, entity.GetPoolsAttachment()[2]);
     }

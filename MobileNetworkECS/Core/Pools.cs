@@ -104,6 +104,7 @@ public class EcsPool<T> : IEcsPool where T: struct
             _components[i].Entity = int.MinValue;
             _components[i].Value = default;
             PoolChanged.Invoke(_componentType, entity, false);
+            break;
         }
     }
 

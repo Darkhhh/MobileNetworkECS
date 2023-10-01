@@ -1,3 +1,4 @@
+using MobileNetworkECS.Core.Utils;
 using MobileNetworkECS.Core.Worlds;
 
 namespace MobileNetworkECS.Core;
@@ -28,31 +29,12 @@ public class RawEntity : IRawEntity
         var arrayIndex = poolId / IEcsWorld.BitSize;
         var poolIndex = poolId - arrayIndex * IEcsWorld.BitSize;
         
-        if (belong == GetBit(_poolsAttachment[arrayIndex], poolIndex)) return;
-        _poolsAttachment[arrayIndex] = SetBit(_poolsAttachment[arrayIndex], poolIndex, belong);
+        if (belong == BitHandler.GetBit(_poolsAttachment[arrayIndex], poolIndex)) return;
+        _poolsAttachment[arrayIndex] = BitHandler.SetBit(_poolsAttachment[arrayIndex], poolIndex, belong);
     }
-    private static uint SetBit(uint val, int index, bool bit)
-    {
-        if (index is < 0 or > 32) throw new Exception($"Incorrect bit index {index}");                      
-        
-        uint tempValue = 1;   
-        tempValue <<= index; // устанавливаем нужный бит в единицу   
-        val &= ~tempValue; // сбрасываем в 0 нужный бит             
-        if (bit) // если бит требуется установить в 1             
-        {                
-            val |= tempValue; // то устанавливаем нужный бит в 1             
-        } 
-        return val;  
-    } 
-    private static bool GetBit(uint val, int index) 
-    {           
-        if (index is > 32 or < 0) throw new Exception($"Incorrect bit index {index}");
-        return ((val>>index)&1)>0; // собственно все вычисления 
-    }  
 
-    public void UpdatePoolsAmount(int poolsAmount)
+    public void IncreasePoolsAmount()
     {
-        if (poolsAmount <= _poolsAttachment.Length * IEcsWorld.BitSize) return;
         Array.Resize(ref _poolsAttachment, _poolsAttachment.Length + 1);
         _poolsAttachment[^1] = 0;
     }
@@ -60,9 +42,10 @@ public class RawEntity : IRawEntity
     public void Reset()
     {
         for (var i = 0; i < _poolsAttachment.Length; i++) _poolsAttachment[i] = 0;
-        _entityId = -1;
         _exists = false;
     }
+
+    public void Refresh() => _exists = true;
 
     public int GetId() => _entityId;
 
