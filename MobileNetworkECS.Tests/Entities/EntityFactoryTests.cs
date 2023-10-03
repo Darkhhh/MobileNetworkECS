@@ -22,10 +22,10 @@ public class EntityFactoryTests
         var firstCreatedEntity = factory.CreateEntityWithFiltersUpdate(Array.Empty<IEcsRegisteredFilter>());
         var secondCreatedEntity = factory.CreateEntityWithFiltersUpdate(Array.Empty<IEcsRegisteredFilter>());
         
-        factory.EntityChangedHandler(0, firstCreatedEntity, true);
-        factory.EntityChangedHandler(2, secondCreatedEntity, true);
+        factory.EntityChangedHandler(0, firstCreatedEntity, true, Array.Empty<IEcsRegisteredFilter>());
+        factory.EntityChangedHandler(2, secondCreatedEntity, true, Array.Empty<IEcsRegisteredFilter>());
         
-        factory.EntityChangedHandler(0, firstCreatedEntity, false);
+        factory.EntityChangedHandler(0, firstCreatedEntity, false, Array.Empty<IEcsRegisteredFilter>());
         
         Assert.IsFalse(factory.GetRawEntity(firstCreatedEntity).Exist());
         

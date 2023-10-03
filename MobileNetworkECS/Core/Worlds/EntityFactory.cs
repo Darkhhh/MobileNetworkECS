@@ -41,7 +41,7 @@ public class EntityFactory
         return id;
     }
 
-    public void EntityChangedHandler(int poolId, int entity, bool added)
+    public void EntityChangedHandler(int poolId, int entity, bool added, IEnumerable<IEcsRegisteredFilter> filters)
     {
 #if DEBUG
         if (entity > _entitiesNumber + 1) throw new Exception("Indexes grow faster than _rawEntities");
@@ -52,6 +52,7 @@ public class EntityFactory
 #endif
         
         rawEntity.SetPool(poolId, added);
+        foreach (var filter in filters) filter.CheckEntity(rawEntity, out _, out _);
         
         if (!rawEntity.IsEmpty()) return;
         

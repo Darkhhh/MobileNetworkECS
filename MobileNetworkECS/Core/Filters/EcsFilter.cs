@@ -3,7 +3,7 @@ using MobileNetworkECS.Core.Worlds;
 
 namespace MobileNetworkECS.Core.Filters;
 
-public class EcsFilter : IEcsFilter, IEnumerable, IEnumerator
+public class EcsFilter : IEcsFilter
 {
     private IEcsRegisteredFilter? _registeredFilter;
     private readonly List<Type> _incTypes = new(), _excTypes = new();

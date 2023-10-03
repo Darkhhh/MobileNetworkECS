@@ -15,7 +15,7 @@ public class EcsWorld : IEcsWorld
     private readonly List<IDisposeSystem> _disposeSystems = new(128);
 
     private int _poolsStorage = 2;
-    private EntityFactory _factory = new ();
+    private readonly EntityFactory _factory = new ();
     
     public IEcsWorld AddSystem(IEcsSystem system)
     {
@@ -40,7 +40,7 @@ public class EcsWorld : IEcsWorld
 
     private void EntityChangedHandler(Type poolType, int entity, bool added)
     {
-        _factory.EntityChangedHandler(_pools[poolType].GetId(), entity, added);
+        _factory.EntityChangedHandler(_pools[poolType].GetId(), entity, added, _filters);
     }
 
     public bool HasPool<T>() => _pools.ContainsKey(typeof(T));

@@ -14,10 +14,10 @@ public class EcsRegisteredFilter : IEcsRegisteredFilter
     private readonly SparseSet _entitiesSet = new(1024, 1024);
     private int _currentIndex;
     private bool _lock;
-    private int Count => _entitiesSet.Count();
+    public int Count => _entitiesSet.Count();
     private readonly List<DelayedOperation> _delayedOperations = new();
 
-    internal EcsRegisteredFilter(IEcsFilter filter, Type[] incTypes, Type[] excTypes)
+    public EcsRegisteredFilter(IEcsFilter filter, Type[] incTypes, Type[] excTypes)
     {
         Filter = filter;
         _incTypes = incTypes;
@@ -41,36 +41,32 @@ public class EcsRegisteredFilter : IEcsRegisteredFilter
         if (_incMask.Length != poolsAttachment.Length || _excMask.Length != poolsAttachment.Length)
             throw new Exception("Incorrect size for masks or pool attachment");
 #endif
-
+        added = removed = false;
         var contains = _entitiesSet.Find(entity) != -1;
-
+        var poolCorrect = new bool[poolsAttachment.Length];
+        Array.Fill(poolCorrect, false);
+        
         for (var i = 0; i < poolsAttachment.Length; i++)
         {
             var pool = poolsAttachment[i];
             var inc = _incMask[i];
-            var dec = _excMask[i];
-                
+            var exc = _excMask[i];
             var entityInc = pool & inc;
-            var entityDec = ~pool & dec;
-            if (!(entityInc == inc && entityDec == dec))
-            {
-                added = false;
-                if (contains)
-                {
-                    RemoveEntity(entity);
-                    removed = true;
-                }
-                else removed = false;
-                break;
-            }
+            var entityDec = ~pool & exc;
+            poolCorrect[i] = entityInc == inc && entityDec == exc;
         }
-        removed = false;
-        if (!contains)
+
+        if (poolCorrect.All(t => t))
         {
+            if (contains) return;
             AddEntity(entity);
             added = true;
+            return;
         }
-        else added = false;
+
+        if (!contains) return;
+        RemoveEntity(entity);
+        removed = true;
     }
 
     private void AddEntity(int entity)

@@ -92,7 +92,7 @@ public class EcsPool<T> : IEcsPool where T: struct
             if (_components[i].Entity != entity) continue;
             return ref _components[i].Value;
         }
-        throw new Exception("Trying to access not created component");
+        throw new Exception($"Trying to access not created component with entity id:{entity}");
     }
 
     public void Remove(int entity)

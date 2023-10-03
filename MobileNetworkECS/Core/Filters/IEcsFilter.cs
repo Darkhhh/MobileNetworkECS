@@ -1,8 +1,9 @@
+using System.Collections;
 using MobileNetworkECS.Core.Worlds;
 
 namespace MobileNetworkECS.Core.Filters;
 
-public interface IEcsFilter
+public interface IEcsFilter : IEnumerable, IEnumerator
 {
     public IEcsFilter Inc<T>() where T : struct;
     
