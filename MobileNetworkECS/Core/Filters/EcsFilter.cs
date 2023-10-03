@@ -37,20 +37,18 @@ public class EcsFilter : IEcsFilter
 
     public IEnumerator GetEnumerator()
     {
-        if (_registeredFilter != null) return _registeredFilter.GetEnumerator();
-        throw new Exception("Filter is not registered");
+        if (_registeredFilter is null) throw new Exception("Filter is not registered");
+        Reset();
+        return _registeredFilter.GetEnumerator();
     }
 
     public bool MoveNext()
     {
-        if (_registeredFilter != null) return _registeredFilter.MoveNext();
-        throw new Exception("Filter is not registered");
+        if (_registeredFilter is null) throw new Exception("Filter is not registered");
+        return _registeredFilter.MoveNext();
     }
 
-    public void Reset()
-    {
-        _registeredFilter?.Reset();
-    }
+    public void Reset() => _registeredFilter?.Reset();
 
     public object Current
     {
