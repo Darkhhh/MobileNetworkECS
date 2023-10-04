@@ -30,7 +30,7 @@ public class EcsWorld : IEcsWorld
     public IEcsWorld BindPool<T>() where T : struct
     {
         var type = typeof(T);
-        if (_pools.ContainsKey(type)) throw new Exception("Pool already registered");
+        if (_pools.ContainsKey(type)) return this;
         _pools.Add(type, new EcsPool<T>(type, EntityChangedHandler));
         _factory.UpdatePoolsAmount(_pools.Count);
         foreach (var filter in _filters) filter.UpdatePoolsAmount(_pools.Count);
@@ -74,7 +74,7 @@ public class EcsWorld : IEcsWorld
 
     public EcsPool<T> GetPool<T>() where T : struct
     {
-        if (!_pools.ContainsKey(typeof(T))) throw new Exception("Pool is not registered");
+        if (!_pools.ContainsKey(typeof(T))) BindPool<T>();
         return (EcsPool<T>) _pools[typeof(T)];
     }
 

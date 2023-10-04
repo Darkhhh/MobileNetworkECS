@@ -5,13 +5,25 @@ namespace MobileNetworkECS.Core.Filters;
 
 public class EcsFilter : IEcsFilter
 {
+    private IEcsWorld _world;
     private IEcsRegisteredFilter? _registeredFilter;
     private readonly List<Type> _incTypes = new(), _excTypes = new();
     
     public Action? FilterWasUpdated { get; set; }
-    
+    public int Count
+    {
+        get
+        {
+            if (_registeredFilter != null) return _registeredFilter.Count;
+            throw new Exception("Filter is not registered");
+        }
+    }
+
+    public EcsFilter(IEcsWorld world) => _world = world;
+
     public IEcsFilter Inc<T>() where T : struct
     {
+        _world.BindPool<T>();
         var type = typeof(T);
         if (_excTypes.Contains(type)) throw new Exception("Pool already in Exc pools");
         if (_incTypes.Contains(type)) return this;
@@ -21,6 +33,7 @@ public class EcsFilter : IEcsFilter
 
     public IEcsFilter Exc<T>() where T : struct
     {
+        _world.BindPool<T>();
         var type = typeof(T);
         if (_incTypes.Contains(type)) throw new Exception("Pool already in Inc pools");
         if (_excTypes.Contains(type)) return this;

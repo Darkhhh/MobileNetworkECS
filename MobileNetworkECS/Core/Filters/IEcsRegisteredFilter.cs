@@ -17,4 +17,6 @@ public interface IEcsRegisteredFilter : IEnumerable, IEnumerator
     internal void UpdateMaxEntityIndex(int amount);
     
     public IEcsFilter Filter { get; init; }
+    
+    public int Count { get; }
 }

@@ -63,7 +63,7 @@ public class FilterTest
     public void FilterAndRegisteredFilterCombinedWorkCorrectly()
     {
         var worldPlug = new EcsWorldPlug();
-        var filter = new EcsFilter();
+        var filter = new EcsFilter(new EcsWorldPlug());
         filter.Inc<Position>().Exc<Velocity>().Register(worldPlug);
         var registeredFilter = GetInnerFilter(filter);
         
@@ -90,7 +90,7 @@ public class FilterTest
     public void AddAndDeleteInFilterWorksCorrectly()
     {
         var worldPlug = new EcsWorldPlug();
-        var filter = new EcsFilter();
+        var filter = new EcsFilter(new EcsWorldPlug());
         filter.Inc<Position>().Exc<Velocity>().Register(worldPlug);
         var registeredFilter = GetInnerFilter(filter);
         
@@ -138,17 +138,17 @@ public class FilterTest
 
     private class EcsWorldPlug : IEcsWorld
     {
-        public IEcsWorld AddSystem(IEcsSystem system) { throw new NotImplementedException(); }
-        public IEcsWorld BindPool<T>() where T : struct { throw new NotImplementedException(); }
-        public bool HasPool<T>() { throw new NotImplementedException(); }
-        public IEcsWorld RegisterFilter(IEcsRegisteredFilter filter) { return this; }
-        public int CreateEntity() { throw new NotImplementedException(); }
-        public EcsPool<T> GetPool<T>() where T : struct { throw new NotImplementedException(); }
-        public IEcsPool GetPoolByType(Type type) { throw new NotImplementedException(); }
-        public IReadOnlyList<IEcsSystem> GetAllSystems() { throw new NotImplementedException(); }
-        public IEcsWorld Init() { throw new NotImplementedException(); }
-        public void Run() { throw new NotImplementedException(); }
-        public void Dispose() { throw new NotImplementedException(); }
-        public void Destroy() { throw new NotImplementedException(); }
+        public IEcsWorld AddSystem(IEcsSystem system) => this;
+        public IEcsWorld BindPool<T>() where T : struct => this;
+        public bool HasPool<T>() => false;
+        public IEcsWorld RegisterFilter(IEcsRegisteredFilter filter) => this;
+        public int CreateEntity() => -1;
+        public EcsPool<T> GetPool<T>() where T : struct => null;
+        public IEcsPool GetPoolByType(Type type) => null;
+        public IReadOnlyList<IEcsSystem> GetAllSystems() => Array.Empty<IEcsSystem>().ToList();
+        public IEcsWorld Init() => this;
+        public void Run() {  }
+        public void Dispose() {  }
+        public void Destroy() {  }
     }
 }
