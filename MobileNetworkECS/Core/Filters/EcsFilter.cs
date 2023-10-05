@@ -8,7 +8,7 @@ public class EcsFilter : IEcsFilter
     private IEcsWorld _world;
     private IEcsRegisteredFilter? _registeredFilter;
     private readonly List<Type> _incTypes = new(), _excTypes = new();
-    
+
     public Action? FilterWasUpdated { get; set; }
     public int Count
     {
@@ -41,10 +41,31 @@ public class EcsFilter : IEcsFilter
         return this;
     }
 
-    public IEcsFilter Register(IEcsWorld world)
+    public IEcsFilter Register()
     {
         _registeredFilter = new EcsRegisteredFilter(this, _incTypes.ToArray(), _excTypes.ToArray());
-        world.RegisterFilter(_registeredFilter);
+        _world.RegisterFilter(_registeredFilter);
+        return this;
+    }
+
+    public IEcsFilter SetIncTypes(params Type[] types)
+    {
+        _incTypes.Clear();
+        foreach (var type in types)
+        {
+            if (!_incTypes.Contains(type) && !_excTypes.Contains(type)) _incTypes.Add(type);
+            else throw new Exception("Incorrect type input");
+        }
+        return this;
+    }
+    public IEcsFilter SetExcTypes(params Type[] types)
+    {
+        _excTypes.Clear();
+        foreach (var type in types)
+        {
+            if (!_incTypes.Contains(type) && !_excTypes.Contains(type)) _excTypes.Add(type);
+            else throw new Exception("Incorrect type input");
+        }
         return this;
     }
 

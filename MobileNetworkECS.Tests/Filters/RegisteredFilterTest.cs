@@ -108,13 +108,15 @@ public class RegisteredFilterTest
 
     private class EcsFilterPlug : IEcsFilter
     {
-        public IEnumerator GetEnumerator() { throw new NotImplementedException(); }
-        public bool MoveNext() { throw new NotImplementedException(); }
-        public void Reset() { throw new NotImplementedException(); }
-        public object Current => throw new NotImplementedException();
-        public IEcsFilter Inc<T>() where T : struct { throw new NotImplementedException(); }
-        public IEcsFilter Exc<T>() where T : struct { throw new NotImplementedException(); }
-        public IEcsFilter Register(IEcsWorld world) { throw new NotImplementedException(); }
+        public IEnumerator GetEnumerator() => null;
+        public bool MoveNext() => false;
+        public void Reset() {  }
+        public object Current => null;
+        public IEcsFilter Inc<T>() where T : struct => this;
+        public IEcsFilter Exc<T>() where T : struct => this;
+        public IEcsFilter Register() => this;
+        public IEcsFilter SetIncTypes(params Type[] types) => this;
+        public IEcsFilter SetExcTypes(params Type[] types) => this;
         public Action? FilterWasUpdated { get; set; }
     }
     private struct Position { public float X, Y; }

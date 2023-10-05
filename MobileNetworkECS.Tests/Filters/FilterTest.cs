@@ -63,8 +63,8 @@ public class FilterTest
     public void FilterAndRegisteredFilterCombinedWorkCorrectly()
     {
         var worldPlug = new EcsWorldPlug();
-        var filter = new EcsFilter(new EcsWorldPlug());
-        filter.Inc<Position>().Exc<Velocity>().Register(worldPlug);
+        var filter = new EcsFilter(worldPlug);
+        filter.Inc<Position>().Exc<Velocity>().Register();
         var registeredFilter = GetInnerFilter(filter);
         
         var positionPool = GetPool<Position>();
@@ -90,8 +90,8 @@ public class FilterTest
     public void AddAndDeleteInFilterWorksCorrectly()
     {
         var worldPlug = new EcsWorldPlug();
-        var filter = new EcsFilter(new EcsWorldPlug());
-        filter.Inc<Position>().Exc<Velocity>().Register(worldPlug);
+        var filter = new EcsFilter(worldPlug);
+        filter.Inc<Position>().Exc<Velocity>().Register();
         var registeredFilter = GetInnerFilter(filter);
         
         var positionPool = GetPool<Position>();

@@ -58,6 +58,7 @@ public class RawEntityFunctioningUnitTests
     [ClassInitialize]
     public static void Initialize(TestContext testContext)
     {
+        IRawEntity.ResetIds();
         _entities = new List<RawEntity>(EntitiesAmount);
         for (var i = 0; i < EntitiesAmount; i++)
         {

@@ -1,5 +1,4 @@
 using System.Collections;
-using MobileNetworkECS.Core.Worlds;
 
 namespace MobileNetworkECS.Core.Filters;
 
@@ -9,7 +8,10 @@ public interface IEcsFilter : IEnumerable, IEnumerator
     
     public IEcsFilter Exc<T>() where T : struct;
 
-    public IEcsFilter Register(IEcsWorld world);
+    public IEcsFilter Register();
+
+    public IEcsFilter SetIncTypes(params Type[] types);
+    public IEcsFilter SetExcTypes(params Type[] types);
     
     public Action? FilterWasUpdated { get; set; }
 }

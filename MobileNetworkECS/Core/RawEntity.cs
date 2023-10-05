@@ -7,6 +7,7 @@ public interface IRawEntity
 {
     private static int _id;
     public static int CreateId() => ++_id;
+    public static void ResetIds() => _id = 0;
     public int GetId();
     public uint[] GetPoolsAttachment();
 }
