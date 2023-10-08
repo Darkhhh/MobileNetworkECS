@@ -7,21 +7,16 @@ namespace MobileNetworkECS.Extensions.DI;
 
 public static class ExtensionsDependencyInjection
 {
-    public static void InjectFiltersAndPools(this IEcsWorld world)
+    public static IEcsWorld Inject(this IEcsWorld world, params object[] injects)
     {
         foreach (var system in world.GetAllSystems())
         {
             FillPoolsToSystem(world, system);
             FillFiltersToSystem(world, system);
-        }
-    }
-
-    public static void InjectCustoms(this IEcsWorld world, params object[] injects)
-    {
-        foreach (var system in world.GetAllSystems())
-        {
             FillCustomsToSystem(system, injects);
         }
+
+        return world;
     }
 
     private static void FillPoolsToSystem(IEcsWorld world, IEcsSystem system)
