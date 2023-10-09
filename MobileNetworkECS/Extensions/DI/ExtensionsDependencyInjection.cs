@@ -19,7 +19,7 @@ public static class ExtensionsDependencyInjection
         return world;
     }
 
-    private static void FillPoolsToSystem(IEcsWorld world, IEcsSystem system)
+    public static void FillPoolsToSystem(IEcsWorld world, IEcsSystem system)
     {
         var type = system.GetType();
 
@@ -37,7 +37,7 @@ public static class ExtensionsDependencyInjection
         }
     }
 
-    private static void FillFiltersToSystem(IEcsWorld world, IEcsSystem system)
+    public static void FillFiltersToSystem(IEcsWorld world, IEcsSystem system)
     {
         var type = system.GetType();
 
@@ -74,7 +74,7 @@ public static class ExtensionsDependencyInjection
         }
     }
 
-    private static void FillCustomsToSystem(IEcsSystem system, object[] customs)
+    public static void FillCustomsToSystem(IEcsSystem system, object[] customs)
     {
         var type = system.GetType();
         foreach (var fieldInfo in type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Instance))
