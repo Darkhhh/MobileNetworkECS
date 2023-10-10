@@ -1,4 +1,5 @@
 using System.Reflection;
+using MobileNetworkECS.Core.Entities;
 using MobileNetworkECS.Core.Filters;
 using MobileNetworkECS.Core.Utils;
 using MobileNetworkECS.Core.Worlds;
@@ -75,7 +76,7 @@ public class FilterTest
         var suitableEntities = new List<RawEntity>();
         for (var i = 0; i < Entities.Count - 1; i++)
         {
-            var e = new RawEntity(i);
+            var e = new RawEntity(worldPlug, i);
             e.SetPool(positionPool.GetId(), true);
             registeredFilter.CheckEntity(e, out var added, out var removed);
             Assert.IsTrue(added);
@@ -102,7 +103,7 @@ public class FilterTest
         var suitableEntities = new List<RawEntity>();
         for (var i = 0; i < Entities.Count - 1; i++)
         {
-            var e = new RawEntity(i);
+            var e = new RawEntity(worldPlug, i);
             e.SetPool(positionPool.GetId(), true);
             registeredFilter.CheckEntity(e, out var added, out var removed);
             Assert.IsTrue(added);
@@ -131,18 +132,50 @@ public class FilterTest
         foreach (int _ in filter) c++;
         Assert.AreEqual(suitableEntities.Count - 1, c);
     }
+
+    [TestMethod]
+    public void CorrectEnumerationMethods()
+    {
+        IRawEntity.ResetIds();
+        var world = new EcsWorld();
+        world.BindPool<Position>().BindPool<Velocity>();
+        // Default ID enumeration
+        var filter = new EcsFilter(world).Inc<Position>().Exc<Velocity>().Register();
+
+        var e1 = world.NewEntity().AddComponent<Position>();
+        var e2 = world.NewEntity().AddComponent<Velocity>();
+
+        while (filter.MoveNext())
+        {
+            Assert.ThrowsException<InvalidCastException>(() => (Entity) filter.Current);
+        }
+
+        filter.GetEnumerator();
+        
+        // Entity enumeration
+
+        filter.EnumerateAsEntity();
+        
+        while (filter.MoveNext())
+        {
+            Assert.IsNotNull((Entity) filter.Current);
+            Assert.ThrowsException<InvalidCastException>(() => (int) filter.Current);
+        }
+    }
     
     
     private struct Position { public float X, Y; }
     private struct Velocity { public float vX, vY; }
 
-    private class EcsWorldPlug : IEcsWorld
+    public class EcsWorldPlug : IEcsWorld
     {
         public IEcsWorld AddSystem(IEcsSystem system) => this;
         public IEcsWorld BindPool<T>() where T : struct => this;
         public bool HasPool<T>() => false;
         public IEcsWorld RegisterFilter(IEcsRegisteredFilter filter) => this;
-        public int CreateEntity() => -1;
+        public int NewEntityId() => -1;
+        public Entity GetEntityById(int entity) => null;
+        public Entity NewEntity() => null;
         public EcsPool<T> GetPool<T>() where T : struct => null;
         public IEcsPool GetPoolByType(Type type) => null;
         public IReadOnlyList<IEcsSystem> GetAllSystems() => Array.Empty<IEcsSystem>().ToList();

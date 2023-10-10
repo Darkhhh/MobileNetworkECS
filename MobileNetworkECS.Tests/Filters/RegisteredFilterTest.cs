@@ -38,6 +38,7 @@ public class RegisteredFilterTest
     [TestMethod]
     public void CorrectFilterEntityCheck()
     {
+        var worldPlug = new FilterTest.EcsWorldPlug();
         var filter = new EcsRegisteredFilter(new EcsFilterPlug(), Array.Empty<Type>(), Array.Empty<Type>());
         var positionPool = GetPool<Position>();
         var velocityPool = GetPool<Velocity>();
@@ -49,20 +50,20 @@ public class RegisteredFilterTest
         filter.SetMasks(incMaskArray, excMaskArray);
 
 
-        var entity1 = new RawEntity(Entities[0]);
+        var entity1 = new RawEntity(worldPlug, Entities[0]);
         entity1.SetPool(positionPool.GetId(), true);
         filter.CheckEntity(entity1, out var added, out var removed);
         Assert.IsTrue(added);
         Assert.IsFalse(removed);
         
-        var entity2 = new RawEntity(Entities[1]);
+        var entity2 = new RawEntity(worldPlug, Entities[1]);
         entity2.SetPool(positionPool.GetId(), true);
         entity2.SetPool(velocityPool.GetId(), true);
         filter.CheckEntity(entity2, out added, out removed);
         Assert.IsFalse(added);
         Assert.IsFalse(removed);
         
-        var entity3 = new RawEntity(Entities[1]);
+        var entity3 = new RawEntity(worldPlug, Entities[1]);
         entity3.SetPool(positionPool.GetId(), false);
         entity3.SetPool(velocityPool.GetId(), true);
         filter.CheckEntity(entity3, out added, out removed);
@@ -73,6 +74,7 @@ public class RegisteredFilterTest
     [TestMethod]
     public void CorrectAddingAndRemoving()
     {
+        var worldPlug = new FilterTest.EcsWorldPlug();
         var filter = new EcsRegisteredFilter(new EcsFilterPlug(), Array.Empty<Type>(), Array.Empty<Type>());
         var positionPool = GetPool<Position>();
         var velocityPool = GetPool<Velocity>();
@@ -84,7 +86,7 @@ public class RegisteredFilterTest
         filter.SetMasks(incMaskArray, excMaskArray);
 
         // entity1 is acceptable, and not in the filter
-        var entity1 = new RawEntity(Entities[0]);
+        var entity1 = new RawEntity(worldPlug, Entities[0]);
         entity1.SetPool(positionPool.GetId(), true);
         filter.CheckEntity(entity1, out var added, out var removed);
         Assert.IsTrue(added);
@@ -117,6 +119,8 @@ public class RegisteredFilterTest
         public IEcsFilter Register() => this;
         public IEcsFilter SetIncTypes(params Type[] types) => this;
         public IEcsFilter SetExcTypes(params Type[] types) => this;
+        public IEcsFilter EnumerateAsEntity() => this;
+        public IEcsFilter EnumerateAsEntityId() => this;
         public Action? FilterWasUpdated { get; set; }
     }
     private struct Position { public float X, Y; }

@@ -1,3 +1,4 @@
+using MobileNetworkECS.Core.Entities;
 using MobileNetworkECS.Core.Utils;
 using MobileNetworkECS.Core.Worlds;
 
@@ -17,12 +18,13 @@ public class RawEntity : IRawEntity
     private int _entityId;
     private bool _exists;
     private uint[] _poolsAttachment = new uint[2];
-
+    private readonly Entity _entity;
     
-    public RawEntity(int id)
+    public RawEntity(IEcsWorld world, int id)
     {
         _entityId = id;
         _exists = true;
+        _entity = new Entity(world, id);
     }
     
     public void SetPool(int poolId, bool belong)
@@ -57,4 +59,6 @@ public class RawEntity : IRawEntity
     public bool IsEmpty() => _poolsAttachment.All(t => t == 0);
 
     public bool Exist() => _exists;
+
+    public Entity GetEntityClass() => _entity;
 }

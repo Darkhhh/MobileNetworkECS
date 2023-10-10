@@ -1,3 +1,4 @@
+using MobileNetworkECS.Core.Entities;
 using MobileNetworkECS.Core.Filters;
 
 namespace MobileNetworkECS.Core.Worlds;
@@ -9,7 +10,9 @@ public class EntityFactory
     private int[] _recycled = new int[128];
     private int _recycledEntitiesNumber = 0;
     private int _poolsStorage = 2;
+    private readonly IEcsWorld _world;
 
+    public EntityFactory(IEcsWorld world) => _world = world;
     
     public bool UpdatePoolsAmount(int amount)
     {
@@ -19,7 +22,7 @@ public class EntityFactory
         return true;
     }
 
-    public int CreateEntityWithFiltersUpdate(IEnumerable<IEcsRegisteredFilter> filters)
+    public int CreateEntityWithFiltersUpdate(IEnumerable<IEcsRegisteredFilter> filters, out Entity e)
     {
         if (_recycledEntitiesNumber > 0)
         {
@@ -28,16 +31,18 @@ public class EntityFactory
             _recycledEntitiesNumber--;
             
             rawEntity.Refresh();
+            e = rawEntity.GetEntityClass();
             return rawEntity.GetId();
         }
 
         var id = IRawEntity.CreateId();
         if (_entitiesNumber + 1 > _entities.Length) Array.Resize(ref _entities, _entitiesNumber * 2);
-        _entities[_entitiesNumber] = new RawEntity(id);
+        var newRawEntity = new RawEntity(_world, id);
+        _entities[_entitiesNumber] = newRawEntity;
         _entitiesNumber++;
         
         foreach (var filter in filters) filter.UpdateMaxEntityIndex(id);
-        
+        e = newRawEntity.GetEntityClass();
         return id;
     }
 
@@ -64,6 +69,7 @@ public class EntityFactory
     }
 
     public RawEntity GetRawEntity(int entity) => _entities[entity - 1];
+    public Entity GetEntityClass(int entity) => _entities[entity - 1].GetEntityClass();
 
     public void InitializeFilter(IEcsRegisteredFilter filter)
     {

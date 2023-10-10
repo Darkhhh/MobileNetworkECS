@@ -1,3 +1,5 @@
+using MobileNetworkECS.Tests.Filters;
+
 namespace MobileNetworkECS.Tests.Entities;
 
 [TestClass]
@@ -20,7 +22,8 @@ public class RawEntityFunctioningUnitTests
     [TestMethod]
     public void CorrectPoolAssignment()
     {
-        var entity = new RawEntity(IRawEntity.CreateId());
+        var worldPlug = new FilterTest.EcsWorldPlug();
+        var entity = new RawEntity(worldPlug, IRawEntity.CreateId());
         entity.SetPool(0, true);
         Assert.AreEqual(entity.GetPoolsAttachment()[0], 1u);
     }
@@ -28,7 +31,8 @@ public class RawEntityFunctioningUnitTests
     [TestMethod]
     public void CorrectExistAndIsEmptyMethods()
     {
-        var entity = new RawEntity(0);
+        var worldPlug = new FilterTest.EcsWorldPlug();
+        var entity = new RawEntity(worldPlug, 0);
         entity.SetPool(10, true);
         Assert.IsFalse(entity.IsEmpty());
         Assert.IsTrue(entity.Exist());
@@ -41,7 +45,8 @@ public class RawEntityFunctioningUnitTests
     [TestMethod]
     public void CorrectSetPoolMethod()
     {
-        var entity = new RawEntity(0);
+        var worldPlug = new FilterTest.EcsWorldPlug();
+        var entity = new RawEntity(worldPlug, 0);
         entity.SetPool(64, true);
         Assert.IsFalse(entity.IsEmpty());
         Assert.AreEqual(1u, entity.GetPoolsAttachment()[1]);
@@ -58,11 +63,12 @@ public class RawEntityFunctioningUnitTests
     [ClassInitialize]
     public static void Initialize(TestContext testContext)
     {
+        var worldPlug = new FilterTest.EcsWorldPlug();
         IRawEntity.ResetIds();
         _entities = new List<RawEntity>(EntitiesAmount);
         for (var i = 0; i < EntitiesAmount; i++)
         {
-            _entities.Add(new RawEntity(IRawEntity.CreateId()));
+            _entities.Add(new RawEntity(worldPlug, IRawEntity.CreateId()));
         }
     }
 }

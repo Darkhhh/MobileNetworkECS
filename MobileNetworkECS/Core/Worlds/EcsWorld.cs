@@ -1,3 +1,4 @@
+using MobileNetworkECS.Core.Entities;
 using MobileNetworkECS.Core.Filters;
 using MobileNetworkECS.Core.Utils;
 using Exception = System.Exception;
@@ -15,7 +16,12 @@ public class EcsWorld : IEcsWorld
     private readonly List<IDisposeSystem> _disposeSystems = new(128);
 
     private int _poolsStorage = 2;
-    private readonly EntityFactory _factory = new ();
+    private readonly EntityFactory _factory;
+
+    public EcsWorld()
+    {
+        _factory = new EntityFactory(this);
+    }
     
     public IEcsWorld AddSystem(IEcsSystem system)
     {
@@ -70,7 +76,14 @@ public class EcsWorld : IEcsWorld
         return this;
     }
 
-    public int CreateEntity() => _factory.CreateEntityWithFiltersUpdate(_filters);
+    public int NewEntityId() => _factory.CreateEntityWithFiltersUpdate(_filters, out _);
+    public Entity GetEntityById(int entity) => _factory.GetEntityClass(entity);
+
+    public Entity NewEntity()
+    {
+        _factory.CreateEntityWithFiltersUpdate(_filters, out var result);
+        return result;
+    }
 
     public EcsPool<T> GetPool<T>() where T : struct
     {

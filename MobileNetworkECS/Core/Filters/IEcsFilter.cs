@@ -12,6 +12,9 @@ public interface IEcsFilter : IEnumerable, IEnumerator
 
     public IEcsFilter SetIncTypes(params Type[] types);
     public IEcsFilter SetExcTypes(params Type[] types);
+
+    public IEcsFilter EnumerateAsEntity();
+    public IEcsFilter EnumerateAsEntityId();
     
     public Action? FilterWasUpdated { get; set; }
 }

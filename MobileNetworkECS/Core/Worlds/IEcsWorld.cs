@@ -1,3 +1,4 @@
+using MobileNetworkECS.Core.Entities;
 using MobileNetworkECS.Core.Filters;
 
 namespace MobileNetworkECS.Core.Worlds;
@@ -17,7 +18,9 @@ public interface IEcsWorld
     /// <param name="filter">Зарегистрированный фильтр, создается внутри EcsFilter</param>
     /// <returns></returns>
     public IEcsWorld RegisterFilter(IEcsRegisteredFilter filter);
-    public int CreateEntity();
+    public int NewEntityId();
+    public Entity GetEntityById(int entity);
+    public Entity NewEntity();
 
     public EcsPool<T> GetPool<T>() where T : struct;
     public IEcsPool GetPoolByType(Type type);

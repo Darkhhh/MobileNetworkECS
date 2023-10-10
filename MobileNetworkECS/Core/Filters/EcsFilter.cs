@@ -5,9 +5,11 @@ namespace MobileNetworkECS.Core.Filters;
 
 public class EcsFilter : IEcsFilter
 {
-    private IEcsWorld _world;
+    private readonly IEcsWorld _world;
     private IEcsRegisteredFilter? _registeredFilter;
     private readonly List<Type> _incTypes = new(), _excTypes = new();
+
+    private bool _enumerateAsEntity;
 
     public Action? FilterWasUpdated { get; set; }
     public int Count
@@ -19,7 +21,7 @@ public class EcsFilter : IEcsFilter
         }
     }
 
-    public EcsFilter(IEcsWorld world) => _world = world;
+    public EcsFilter(IEcsWorld world) => (_world, _enumerateAsEntity) = (world, false);
 
     public IEcsFilter Inc<T>() where T : struct
     {
@@ -68,6 +70,18 @@ public class EcsFilter : IEcsFilter
         }
         return this;
     }
+    
+    public IEcsFilter EnumerateAsEntity()
+    {
+        _enumerateAsEntity = true;
+        return this;
+    }
+
+    public IEcsFilter EnumerateAsEntityId()
+    {
+        _enumerateAsEntity = false;
+        return this;
+    }
 
     public IEnumerator GetEnumerator()
     {
@@ -88,7 +102,12 @@ public class EcsFilter : IEcsFilter
     {
         get
         {
-            if (_registeredFilter is {Current: not null}) return _registeredFilter.Current;
+            if (_registeredFilter is {Current: not null})
+            {
+                return _enumerateAsEntity ? 
+                    _world.GetEntityById((int)_registeredFilter.Current) : 
+                    _registeredFilter.Current;
+            }
             throw new Exception("Filter is not registered");
         }
     }
