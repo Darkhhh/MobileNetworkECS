@@ -5,3 +5,4 @@ MobileNetworkECS.Tests export-ignore
 *.sln export-ignore
 *.csproj export-ignore
 Program.cs export-ignore
+README.md export-ignore
