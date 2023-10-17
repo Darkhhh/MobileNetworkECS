@@ -47,13 +47,13 @@ public static class ExtensionsDependencyInjection
             var attrs = attributes as Attribute[] ?? attributes.ToArray();
             if (!attrs.Any(attr => attr.GetType().IsAssignableFrom(typeof(EcsFilterInjectAttribute)))) 
                 continue;
-            if (!fieldInfo.GetType().IsInstanceOfType(typeof(IEcsFilter)))
+            if (!fieldInfo.FieldType.IsAssignableTo(typeof(IEcsFilter)))
                 throw new Exception("Filter inject attribute added to wrong field type");
             
             var filter = new EcsFilter(world);
 
             var incAttr = attrs.FirstOrDefault(attr => 
-                attr.GetType().IsAssignableFrom(typeof(EcsFilterIncInjectBaseAttribute)));
+                attr.GetType().IsAssignableTo(typeof(EcsFilterIncInjectBaseAttribute)));
             if (incAttr is not null)
             {
                 var attrData = (EcsFilterIncInjectBaseAttribute) incAttr;
@@ -62,14 +62,15 @@ public static class ExtensionsDependencyInjection
             }
             
             var excAttr = attrs.FirstOrDefault(attr => 
-                attr.GetType().IsAssignableFrom(typeof(EcsFilterExcInjectBaseAttribute)));
+                attr.GetType().IsAssignableTo(typeof(EcsFilterExcInjectBaseAttribute)));
             if (excAttr is not null)
             {
                 var attrData = (EcsFilterIncInjectBaseAttribute) excAttr;
                 attrData.Bind(world);
                 filter.SetExcTypes(attrData.GetPoolTypes());
             }
-            
+
+            filter.Register();
             fieldInfo.SetValue(system, filter);
         }
     }
