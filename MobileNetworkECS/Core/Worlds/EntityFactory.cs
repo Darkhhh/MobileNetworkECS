@@ -11,6 +11,7 @@ public class EntityFactory
     private int _recycledEntitiesNumber = 0;
     private int _poolsStorage = 2;
     private readonly IEcsWorld _world;
+    private int _maxId = 0;
 
     public EntityFactory(IEcsWorld world) => _world = world;
     
@@ -35,7 +36,7 @@ public class EntityFactory
             return rawEntity.GetId();
         }
 
-        var id = IRawEntity.CreateId();
+        var id = ++_maxId;
         if (_entitiesNumber + 1 > _entities.Length) Array.Resize(ref _entities, _entitiesNumber * 2);
         var newRawEntity = new RawEntity(_world, id);
         _entities[_entitiesNumber] = newRawEntity;
@@ -86,5 +87,6 @@ public class EntityFactory
         _entitiesNumber = 0;
         _recycledEntitiesNumber = 0;
         _poolsStorage = 2;
+        _maxId = 0;
     }
 }
