@@ -15,6 +15,7 @@ public class EcsWorld : IEcsWorld
     private readonly List<IPostRunSystem> _postRunSystems = new(128);
     private readonly List<IDisposeSystem> _disposeSystems = new(128);
 
+    private int _poolsAmount = 0;
     private int _poolsStorage = 2;
     private readonly EntityFactory _factory;
 
@@ -37,10 +38,10 @@ public class EcsWorld : IEcsWorld
     {
         var type = typeof(T);
         if (_pools.ContainsKey(type)) return this;
-        _pools.Add(type, new EcsPool<T>(IEcsPool.CreateId(), type, EntityChangedHandler));
-        _factory.UpdatePoolsAmount(_pools.Count);
-        foreach (var filter in _filters) filter.UpdatePoolsAmount(_pools.Count);
-        if (_poolsStorage * IEcsWorld.BitSize < _pools.Count) _poolsStorage++;
+        _pools.Add(type, new EcsPool<T>(_poolsAmount++, type, EntityChangedHandler));
+        _factory.UpdatePoolsAmount(_poolsAmount);
+        foreach (var filter in _filters) filter.UpdatePoolsAmount(_poolsAmount);
+        if (_poolsStorage * IEcsWorld.BitSize < _poolsAmount) _poolsStorage++;
         return this;
     }
 
@@ -119,6 +120,12 @@ public class EcsWorld : IEcsWorld
     public void Destroy()
     {
         _factory.Destroy();
-        throw new NotImplementedException();
+        _allSystems.Clear();
+        _initSystems.Clear();
+        _runSystems.Clear();
+        _postRunSystems.Clear();
+        _disposeSystems.Clear();
+        _pools.Clear();
+        _filters.Clear();
     }
 }
