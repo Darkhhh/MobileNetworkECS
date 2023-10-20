@@ -8,8 +8,8 @@ public class PoolTest
     {
         var pools = new List<IEcsPool>
         {
-            new EcsPool<Dummy1>(typeof(Dummy1)),
-            new EcsPool<Dummy2>(typeof(Dummy2))
+            new EcsPool<Dummy1>(IEcsPool.CreateId(), typeof(Dummy1)),
+            new EcsPool<Dummy2>(IEcsPool.CreateId(), typeof(Dummy2))
         };
 
         Assert.AreEqual(0, pools[0].GetId());
@@ -22,7 +22,7 @@ public class PoolTest
         const int coinsAmount = 25;
         
         var entity = 1;
-        var pool = new EcsPool<Dummy1>(typeof(Dummy1));
+        var pool = new EcsPool<Dummy1>(IEcsPool.CreateId(), typeof(Dummy1));
         
         pool.Add(entity);
         ref var data = ref pool.Get(entity);
@@ -39,7 +39,7 @@ public class PoolTest
     public void CorrectRemovingEntityComponent()
     {
         var entity = 1;
-        var pool = new EcsPool<Dummy1>(typeof(Dummy1));
+        var pool = new EcsPool<Dummy1>(IEcsPool.CreateId(), typeof(Dummy1));
         
         pool.Add(entity);
         Assert.IsTrue(pool.Has(entity));
@@ -52,7 +52,7 @@ public class PoolTest
     [TestMethod]
     public void CorrectSeveralEntitiesHandling()
     {
-        var pool = new EcsPool<Dummy1>(typeof(Dummy1));
+        var pool = new EcsPool<Dummy1>(IEcsPool.CreateId(), typeof(Dummy1));
         
         var entity1 = 1;
         ref var entity1Data = ref pool.Add(entity1);

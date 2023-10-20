@@ -13,8 +13,8 @@ public class RegisteredFilterTest
     [ClassInitialize]
     public static void Initialize(TestContext testContext)
     {
-        Pools.Add(typeof(Position), new EcsPool<Position>(typeof(Position)));
-        Pools.Add(typeof(Velocity), new EcsPool<Velocity>(typeof(Velocity)));
+        Pools.Add(typeof(Position), new EcsPool<Position>(IEcsPool.CreateId(), typeof(Position)));
+        Pools.Add(typeof(Velocity), new EcsPool<Velocity>(IEcsPool.CreateId(), typeof(Velocity)));
         
         Entities.AddRange(new List<int>{1, 2, 3});
     }

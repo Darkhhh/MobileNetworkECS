@@ -26,86 +26,87 @@ public class EcsPool<T> : IEcsPool where T: struct
     private Component[] _components = new Component[256];
     private int _size;
     private readonly int _id;
+
+    private int[] _componentsByEntities = new int[256];
+    private int[] _recycledComponentsIndices = new int[256];
+    private int _recycledComponentsAmount = 0;
     
     
-    internal EcsPool(Type componentType, Action<Type, int, bool> poolChanged)
+    internal EcsPool(int id, Type componentType, Action<Type, int, bool> poolChanged)
     {
         _componentType = componentType;
         PoolChanged = poolChanged;
-        _id = IEcsPool.CreateId();
+        _id = id;
+        Init();
     }
 
-    public EcsPool(Type componentType)
+    public EcsPool(int id, Type componentType) : this(id, componentType, (_, _, _) => { }) { }
+
+    private void Init()
     {
-        _componentType = componentType;
-        PoolChanged = (_, _, _) => { };
-        _id = IEcsPool.CreateId();
+        _recycledComponentsAmount = 256;
+        for (var i = 0; i < _recycledComponentsAmount; i++) _recycledComponentsIndices[i] = i;
+        Array.Fill(_componentsByEntities, -1);
+        Array.Fill(_components, new Component{Entity = int.MinValue, Exists = false, Value = default});
     }
 
     public int GetId() => _id;
 
     public ref T Add(int entity)
     {
-        for (var i = 0; i < _components.Length; i++)
+        if (Has(entity)) throw new Exception("Entity already in pool");
+        if (_componentsByEntities.Length < entity) Array.Resize(ref _componentsByEntities, entity + 1);
+        int componentIndex;
+        
+        if (_recycledComponentsAmount > 0)
         {
-            if (_components[i].Exists && _components[i].Entity == entity)
-                throw new Exception("Entity already in pool");
+            componentIndex = _recycledComponentsIndices[--_recycledComponentsAmount];
+            ref var component = ref _components[componentIndex];
+            component.Exists = true;
+            component.Entity = entity;
+        }
+        else
+        {
+            if (_size + 1 >= _components.Length) Array.Resize(ref _components, _components.Length * 2);
+            componentIndex = _size++;
+            _components[componentIndex] = new Component { Exists = true, Entity = entity, Value = default };
         }
         
-        for (var i = 0; i < _components.Length; i++)
-        {
-            if (_components[i].Exists) continue;
-            
-            _components[i].Exists = true;
-            _components[i].Entity = entity;
-            PoolChanged.Invoke(_componentType, entity, true);
-            return ref _components[i].Value;
-        }
-        
-        if (_size + 1 >= _components.Length)
-        {
-            Array.Resize(ref _components, _components.Length * 2);
-        }
-
-        _components[_size] = new Component
-        {
-            Exists = true,
-            Entity = entity,
-            Value = default
-        };
-            
-        _size++;
+        _componentsByEntities[entity] = componentIndex;
         PoolChanged.Invoke(_componentType, entity, true);
-        return ref _components[_size - 1].Value;
+        return ref _components[componentIndex].Value;
     }
 
     public bool Has(int entity)
     {
-        return _components.Any(component => component.Entity == entity && component.Exists);
+        return entity < _componentsByEntities.Length 
+               && _componentsByEntities[entity] != -1 
+               && _components[_componentsByEntities[entity]].Entity == entity;
     }
     
     public ref T Get(int entity)
     {
-        for (var i = 0; i < _components.Length; i++)
-        {
-            if (!_components[i].Exists) continue;
-            if (_components[i].Entity != entity) continue;
-            return ref _components[i].Value;
-        }
-        throw new Exception($"Trying to access not created component with entity id:{entity}");
+        if (!Has(entity)) throw new Exception($"Trying to access not created component with entity id:{entity}");
+        return ref _components[_componentsByEntities[entity]].Value;
     }
 
     public void Remove(int entity)
     {
-        for (var i = 0; i < _components.Length; i++)
-        {
-            if (_components[i].Entity != entity) continue;
-            _components[i].Exists = false;
-            _components[i].Entity = int.MinValue;
-            _components[i].Value = default;
-            PoolChanged.Invoke(_componentType, entity, false);
-            break;
-        }
+        if (!Has(entity)) return;
+        ref var component = ref _components[_componentsByEntities[entity]];
+#if DEBUG
+        if (component.Entity != entity) throw new Exception("Incorrect component");
+#endif
+        component.Exists = false;
+        component.Entity = int.MinValue;
+        component.Value = default;
+        _recycledComponentsAmount++;
+        if (_recycledComponentsIndices.Length <= _recycledComponentsAmount + 1)
+            Array.Resize(ref _recycledComponentsIndices, _recycledComponentsAmount * 2);
+        _recycledComponentsIndices[_recycledComponentsAmount] = _componentsByEntities[entity];
+        _componentsByEntities[entity] = -1;
+        
+        PoolChanged.Invoke(_componentType, entity, false);
     }
 
     private struct Component

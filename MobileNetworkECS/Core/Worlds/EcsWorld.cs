@@ -37,7 +37,7 @@ public class EcsWorld : IEcsWorld
     {
         var type = typeof(T);
         if (_pools.ContainsKey(type)) return this;
-        _pools.Add(type, new EcsPool<T>(type, EntityChangedHandler));
+        _pools.Add(type, new EcsPool<T>(IEcsPool.CreateId(), type, EntityChangedHandler));
         _factory.UpdatePoolsAmount(_pools.Count);
         foreach (var filter in _filters) filter.UpdatePoolsAmount(_pools.Count);
         if (_poolsStorage * IEcsWorld.BitSize < _pools.Count) _poolsStorage++;
