@@ -13,6 +13,8 @@ public class EcsWorld : IEcsWorld
     private readonly List<IInitSystem> _initSystems = new(128);
     private readonly List<IRunSystem> _runSystems = new(128);
     private readonly List<IPostRunSystem> _postRunSystems = new(128);
+    private readonly List<IFixedRunSystem> _fixedRunSystems = new(128);
+    private readonly List<IPostFixedRunSystem> _postFixedRunSystems = new(128);
     private readonly List<IDisposeSystem> _disposeSystems = new(128);
 
     private int _poolsAmount = 0;
@@ -30,6 +32,8 @@ public class EcsWorld : IEcsWorld
         if (system is IInitSystem initSystem) _initSystems.Add(initSystem);
         if (system is IRunSystem runSystem) _runSystems.Add(runSystem);
         if (system is IPostRunSystem postRunSystem) _postRunSystems.Add(postRunSystem);
+        if (system is IFixedRunSystem fixedRunSystem) _fixedRunSystems.Add(fixedRunSystem);
+        if (system is IPostFixedRunSystem postFixedRunSystem) _postFixedRunSystems.Add(postFixedRunSystem);
         if (system is IDisposeSystem disposeSystem) _disposeSystems.Add(disposeSystem);
         return this;
     }
@@ -110,6 +114,12 @@ public class EcsWorld : IEcsWorld
     {
         foreach (var system in _runSystems) system.Run(this);
         foreach (var system in _postRunSystems) system.PostRun(this);
+    }
+
+    public void FixedRun()
+    {
+        foreach (var system in _fixedRunSystems) system.FixedRun(this);
+        foreach (var system in _postFixedRunSystems) system.PostFixedRun(this);
     }
 
     public void Dispose()

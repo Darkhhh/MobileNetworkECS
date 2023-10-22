@@ -181,6 +181,7 @@ public class FilterTest
         public IReadOnlyList<IEcsSystem> GetAllSystems() => Array.Empty<IEcsSystem>().ToList();
         public IEcsWorld Init() => this;
         public void Run() {  }
+        public void FixedRun() { }
         public void Dispose() {  }
         public void Destroy() {  }
     }

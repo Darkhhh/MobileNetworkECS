@@ -29,6 +29,7 @@ public interface IEcsWorld
 
     public IEcsWorld Init();
     public void Run();
+    public void FixedRun();
 
     public void Dispose();
     public void Destroy();
