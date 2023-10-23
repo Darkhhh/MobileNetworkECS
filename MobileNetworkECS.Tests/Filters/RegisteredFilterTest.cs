@@ -122,6 +122,7 @@ public class RegisteredFilterTest
         public IEcsFilter EnumerateAsEntity() => this;
         public IEcsFilter EnumerateAsEntityId() => this;
         public Action? FilterWasUpdated { get; set; }
+        public int Count { get; }
     }
     private struct Position { public float X, Y; }
     private struct Velocity { public float vX, vY; }

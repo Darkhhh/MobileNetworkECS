@@ -17,4 +17,5 @@ public interface IEcsFilter : IEnumerable, IEnumerator
     public IEcsFilter EnumerateAsEntityId();
     
     public Action? FilterWasUpdated { get; set; }
+    public int Count { get; }
 }
